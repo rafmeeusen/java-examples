@@ -1,5 +1,11 @@
-/* show race condition
-   by letting multiple threads do read-modify-write on unprotected data */
+/* shows race condition
+   by letting multiple threads do read-modify-write on unprotected data
+   i.e. : the expected number of increments doesn't match actual number of increments of the common data
+   to fix the race condition: uncomment synchronized
+   WARNING: the fix is NOT taking into account good coding practices
+   see e.g. "private lock object idiom"
+   (Joshua Bloch, Effective Java: Programming Language Guide, Addison-Wesley Professional, Boston, 2001.)
+ */
 
 class Data
 {
