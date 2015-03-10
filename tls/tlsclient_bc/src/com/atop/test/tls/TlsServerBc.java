@@ -44,8 +44,8 @@ public class TlsServerBc {
   private static final int     SERVER_PORT  = 8748;
   private static PrivateKey    privateKey   = null;
   private static Certificate   bcCert       = null;
-  private static String        keyFile      = "../../java/test/tls/cert/localhost_rsa_pkcs8.key";
-  private static String        certFile     = "../../java/test/tls/cert/localhost_rsa.cer";
+  private static String        keyFile      = "C:\\cygwin\\home\\RafMe\\tls_server\\keystores\\localhost_rsa.key";
+  private static String        certFile     = "C:\\cygwin\\home\\RafMe\\tls_server\\keystores\\localhost_rsa.cer";
 
   // new Certificate(
   // new org.bouncycastle.asn1.x509.Certificate[] { new
