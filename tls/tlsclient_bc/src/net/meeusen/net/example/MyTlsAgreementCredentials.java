@@ -2,6 +2,8 @@ package net.meeusen.net.example;
 
 import java.math.BigInteger;
 
+import net.meeusen.crypto.ByteString;
+
 import org.bouncycastle.crypto.BasicAgreement;
 import org.bouncycastle.crypto.agreement.DHBasicAgreement;
 import org.bouncycastle.crypto.agreement.ECDHBasicAgreement;
@@ -11,8 +13,6 @@ import org.bouncycastle.crypto.params.ECPrivateKeyParameters;
 import org.bouncycastle.crypto.tls.AbstractTlsAgreementCredentials;
 import org.bouncycastle.crypto.tls.Certificate;
 import org.bouncycastle.util.BigIntegers;
-
-import com.nxp.crypto.ByteString;
 
 public class MyTlsAgreementCredentials
     extends AbstractTlsAgreementCredentials
