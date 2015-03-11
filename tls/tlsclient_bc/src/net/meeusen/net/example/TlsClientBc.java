@@ -1,7 +1,6 @@
-package com.atop.test.tls;
+package net.meeusen.net.example;
 
 
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -18,13 +17,12 @@ import java.net.Socket;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.cert.CertificateException;
-
+import net.meeusen.util.ByteString;
 import org.bouncycastle.crypto.params.AsymmetricKeyParameter;
 import org.bouncycastle.crypto.params.ECDomainParameters;
 import org.bouncycastle.crypto.params.ECPrivateKeyParameters;
 import org.bouncycastle.crypto.tls.Certificate;
 import org.bouncycastle.crypto.tls.CertificateRequest;
-import org.bouncycastle.crypto.tls.DefaultTlsAgreementCredentials;
 import org.bouncycastle.crypto.tls.DefaultTlsClient;
 import org.bouncycastle.crypto.tls.TlsAuthentication;
 import org.bouncycastle.crypto.tls.TlsClientProtocol;
@@ -35,24 +33,16 @@ import org.bouncycastle.math.ec.ECCurve;
 import org.bouncycastle.math.ec.ECPoint;
 import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemReader;
-//import org.omg.CORBA.portable.InputStream;
 
-
-
-
-
-
-
-import com.nxp.crypto.ByteString;
 
 public class TlsClientBc {
-	
+
 	private static Certificate getClientCert() {
 		Certificate cert=null;
 		try {
-			
+
 			cert = Util.loadCertificates("C:\\cygwin\\home\\RafMe\\tls_server\\keystores\\client_ec.cer"); 
-			
+
 			//InputStream is = new FileInputStream(new File("C:\\cygwin\\home\\RafMe\\tls_server\\keystores\\client_ec.cer")); 
 			//cert = Certificate.parse(is);
 		} catch (IOException e) {									
@@ -62,19 +52,19 @@ public class TlsClientBc {
 		} 
 		return cert; 
 	}
-	
+
 	private static AsymmetricKeyParameter getClientPrivKey() throws IOException {
-		 AsymmetricKeyParameter privateKey = null;
-		 
-		 try {
+		AsymmetricKeyParameter privateKey = null;
+
+		try {
 			Reader rdr = new FileReader(new File("C:\\cygwin\\home\\RafMe\\tls_server\\keystores\\client_ec.key"));
 			PemReader pemReader = new PemReader(rdr);
-			
+
 			PemObject pem = null;
-			
+
 			BigInteger d = null; 
 			ECDomainParameters dom = null;
-			
+
 			while ( pemReader.ready() ) {
 				pem = pemReader.readPemObject();
 				byte[] pembytes = pem.getContent();
@@ -82,9 +72,9 @@ public class TlsClientBc {
 				System.out.println(type);
 				if ( type.equals("EC PARAMETERS")) {
 					System.out.println(new ByteString(pembytes).toHexString());
-					
+
 					ECNamedCurveParameterSpec curveparams= ECNamedCurveTable.getParameterSpec("P-256");
-					
+
 					ECCurve curve = curveparams.getCurve();
 					ECPoint g = curveparams.getG();
 					BigInteger order = curveparams.getN();
@@ -100,21 +90,21 @@ public class TlsClientBc {
 					pemReader.close();
 					throw new IOException("unexpected pem object"); 
 				}
-				
-				
+
+
 			}
-			
+
 			pemReader.close();
 			rdr.close();
 			privateKey = new ECPrivateKeyParameters(d, dom);  
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} 
-		 
-		 return privateKey;
+
+		return privateKey;
 	}
-	
-	
+
+
 	public static void main(String[] args) throws IOException, NoSuchAlgorithmException
 	{
 		System.out.println("Testing tls handshake client auth method(s)");
@@ -149,7 +139,7 @@ public class TlsClientBc {
 						System.out.println("chain len: "+certs.length);
 						System.out.println(certs[0].getSubject());
 						System.out.println(certs[0].getStartDate() + " - " + certs[0].getEndDate());
-						
+
 					}
 					public TlsCredentials getClientCredentials(CertificateRequest certificateRequest) throws IOException  {
 						short[] certtypes = certificateRequest.getCertificateTypes();
@@ -157,28 +147,28 @@ public class TlsClientBc {
 							System.out.print(certtypes[i]+ " ");
 						}
 						System.out.println(); 	
-						
+
 						TlsCredentials cred = new MyTlsAgreementCredentials(getClientCert(), getClientPrivKey());  
-//						TlsCredentials cred = new TlsAgreementCredentials() {
-//							public Certificate getCertificate() {
-//								System.out.println("call to TlsAgreementCredentials.getCertificate");
-//									return getClientCert(); 
-//							}
-//
-//							@Override
-//							public byte[] generateAgreement(
-//									AsymmetricKeyParameter peerPublicKey)
-//									throws IOException {
-//								System.out.println("call to TlsAgreementCredentials.generateAgreement");
-//								System.out.println(peerPublicKey.getClass());
-//								ECPublicKeyParameters params = (ECPublicKeyParameters)peerPublicKey;
-//								ECPoint publickeypoint = params.getQ(); 
-//								BigInteger x_coord_bi = publickeypoint.getXCoord().toBigInteger();
-//								System.out.println(x_coord_bi); 
-//								
-//								return null;
-//							}
-//						};
+						//						TlsCredentials cred = new TlsAgreementCredentials() {
+						//							public Certificate getCertificate() {
+						//								System.out.println("call to TlsAgreementCredentials.getCertificate");
+						//									return getClientCert(); 
+						//							}
+						//
+						//							@Override
+						//							public byte[] generateAgreement(
+						//									AsymmetricKeyParameter peerPublicKey)
+						//									throws IOException {
+						//								System.out.println("call to TlsAgreementCredentials.generateAgreement");
+						//								System.out.println(peerPublicKey.getClass());
+						//								ECPublicKeyParameters params = (ECPublicKeyParameters)peerPublicKey;
+						//								ECPoint publickeypoint = params.getQ(); 
+						//								BigInteger x_coord_bi = publickeypoint.getXCoord().toBigInteger();
+						//								System.out.println(x_coord_bi); 
+						//								
+						//								return null;
+						//							}
+						//						};
 						return cred; 
 						//return tlsSignerCredentials(context);
 					}
@@ -193,32 +183,32 @@ public class TlsClientBc {
 
 		}; 
 
-		
+
 		tls.connect(client);
-		
+
 		InputStream is = tls.getInputStream(); 
 		OutputStream os = tls.getOutputStream(); 
 
 
-		
+
 		BufferedWriter wr = new BufferedWriter(new OutputStreamWriter(os));  
 		BufferedReader rd = new BufferedReader(new InputStreamReader(is));          
-		
+
 		//wr.write("GET HTTP/1.1\r\n");
 
-		
-//		BufferedInputStream bis = new BufferedInputStream(is);
-//		System.out.println(bis.available());		
+
+		//		BufferedInputStream bis = new BufferedInputStream(is);
+		//		System.out.println(bis.available());		
 		String string;
 		rd.ready();
-        while ((string = rd.readLine()) != null) {
-            System.out.println(string);
-            System.out.flush();
-        }
-        
-        //wr.close();
-        //rd.close();
-		
+		while ((string = rd.readLine()) != null) {
+			System.out.println(string);
+			System.out.flush();
+		}
+
+		//wr.close();
+		//rd.close();
+
 		sock.close();
 		//      TlsServerProtocol  tlsServerProtocol = new TlsServerProtocol(
 		//              socket.getInputStream(), socket.getOutputStream(), secureRandom);

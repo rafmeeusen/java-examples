@@ -1,4 +1,4 @@
-package com.atop.test.tls;
+package net.meeusen.net.example;
 
 import java.io.BufferedInputStream;
 import java.io.File;
