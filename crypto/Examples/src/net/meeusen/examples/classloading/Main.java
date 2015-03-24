@@ -1,10 +1,14 @@
 package net.meeusen.examples.classloading;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
+
 
 public class Main {
 
 	
-	public static void main(String[] args)			 {
+	public static void main(String[] args) throws ClassNotFoundException, MalformedURLException			 {
 		
 		System.out.println("Showing 3 different classloaders in java system.");
 		System.out.println();
@@ -44,8 +48,26 @@ public class Main {
 		for ( Class<?> c: classes ) {
 			System.out.println(c + " <---> " + c.getClassLoader());	
 		}
+		System.out.println();
 		
-
+		System.out.println("3. <TODO NOT FINISHED> Let's show that the same class can be loaded by two different class loaders.");
+		System.out.println(appclassloader.getResource("test.txt"));
+		System.out.println(appclassloader.getResource("net/meeusen/examples/classloading/Main.class"));
+		
+		URL url1 = new URL("file:/C:/MyLocalData/mygithub/java-examples/crypto/Examples/bin/"); 
+		URL url2 = new URL("file:/C:/MyLocalData/mygithub/java-examples/crypto/Examples/bin/"); 
+		
+		ClassLoader mycl1 = new URLClassLoader(new URL[]{url1}, appclassloader); 
+		ClassLoader mycl2 = new URLClassLoader(new URL[]{url2}, appclassloader);
+		Class<?> main1 = mycl1.loadClass("net.meeusen.examples.classloading.Main"); 
+		Class<?> main2 = mycl2.loadClass("net.meeusen.examples.classloading.Main"); 
+		
+		classes = new Class[] { main1, main2	}; 		
+		for ( Class<?> c: classes ) {
+			System.out.println(c + " <---> " + c.getClassLoader());	
+		}
+		
+		System.out.println();
 		
 	}
 
