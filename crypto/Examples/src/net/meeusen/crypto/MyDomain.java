@@ -2,6 +2,8 @@ package net.meeusen.crypto;
 
 import java.math.BigInteger;
 
+import net.meeusen.util.ByteString;
+
 import org.bouncycastle.crypto.params.ECDomainParameters;
 import org.bouncycastle.jce.ECNamedCurveTable;
 import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
