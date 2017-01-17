@@ -10,6 +10,8 @@ public class SimpleSecurityManagerExample {
 	 * Enable SecurityManager and check out the security exception resulting from it,
 	 * when listing a directory.
 	 * (default policy)
+	 * 
+	 * Adding missing permission to .../jre/lib/security/java.policy will influence the test behaviour. 
 	 */
 	public static void main(String[] args) {
 		final String defaultDirName = "/etc/apt"; 
@@ -30,7 +32,7 @@ public class SimpleSecurityManagerExample {
 		System.out.println("Now try again listing dir. ");
 		try {
 			printDir(defaultDirName); 
-			System.out.println("Strange. Could still read directory. Not expected. ");
+			System.out.println("Could still read directory. Seems that permission was granted in policy. ");
 		} catch (AccessControlException se) {
 			System.out.println("Got excpected AccessControlException.");		
 			FilePermission permissionThatIWouldNeed = (FilePermission) se.getPermission();			
