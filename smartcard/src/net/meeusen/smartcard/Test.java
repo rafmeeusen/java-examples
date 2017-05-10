@@ -1,4 +1,4 @@
-package meeusen.raf.test;
+package net.meeusen.smartcard;
 
 import java.nio.ByteBuffer;
 import java.util.List;
@@ -10,6 +10,8 @@ import javax.smartcardio.CardTerminal;
 import javax.smartcardio.CommandAPDU;
 import javax.smartcardio.ResponseAPDU;
 import javax.smartcardio.TerminalFactory;
+
+import net.meeusen.util.ByteString;
 
 
 public class Test {

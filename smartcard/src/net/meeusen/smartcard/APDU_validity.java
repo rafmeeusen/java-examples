@@ -1,4 +1,4 @@
-package meeusen.raf.test;
+package net.meeusen.smartcard;
 
 
 import javax.smartcardio.CommandAPDU;
