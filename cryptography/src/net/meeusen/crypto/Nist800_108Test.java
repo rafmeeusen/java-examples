@@ -15,6 +15,9 @@ import net.meeusen.util.ByteString;
  * Implement test for NIST 800-108 key derivation. 
  * Based on AES-CMAC PRF.
  * Doing counter Mode KDF. 
+ * 
+ * KDF spec: http://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-108.pdf
+ * underlying PRF: AES-CMAC, see http://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-38b.pdf
  * */
 public class Nist800_108Test {
 
@@ -39,6 +42,9 @@ public class Nist800_108Test {
         String label = "CRYPTO STORAGE HW Crypto Derived key SYMR";
         String context = "CRYPTO STORAGE HW Crypto key derived from SHK SYMR";
 
+        System.out.println("nr bytes in label string: " + label.length());
+        System.out.println("nr bytes in context string: " + context.length());
+        
         int outputSize = 256/8; // note MUST match 0x0100 while hardcoded below
         byte[] derivedKey = mytest.deriveKey(inputKey, label, context, outputSize);
         System.out.println(new ByteString(derivedKey));
