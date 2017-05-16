@@ -3,6 +3,7 @@ package net.meeusen.crypto;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.Random;
 
 import javax.crypto.Mac;
@@ -10,12 +11,19 @@ import javax.crypto.spec.SecretKeySpec;
 
 import net.meeusen.util.ByteString;
 
-import org.bouncycastle.util.Arrays;
 
 public class MacTests {
 
 	public static void main(String[] args) throws NoSuchAlgorithmException, InvalidKeyException {
-		final int maxkeybytes = 24; 
+	    
+		testOne();
+
+	}
+
+
+
+    private static void testOne() throws NoSuchAlgorithmException, InvalidKeyException, IllegalStateException {
+        final int maxkeybytes = 24; 
 		String message_p1 = "this is my "; 
 		String message_p2 = "message!"; 
 
@@ -53,9 +61,6 @@ public class MacTests {
 //		hm.update("part II of my msgtxt".getBytes());
 //		byte[] mac2 = hm.doFinal();		
 //		System.out.println("mac with short key: " + new ByteString(mac2).toHexString());
-		
-		
-
-	}
+    }
 
 }
