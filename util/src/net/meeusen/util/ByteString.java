@@ -40,7 +40,9 @@ public class ByteString {
     }
 
     public ByteString(String hexString) {		
-        this.bytes = hexstring2bytes(hexString) ; 
+        if ( hexString != null ) {            
+            this.bytes = hexstring2bytes(hexString) ;
+        }
     }
 
     private byte[] hexstring2bytes (String hexString) {
