@@ -28,18 +28,15 @@ public class Nist800_108Test {
         return inputkey;
     }
 
-
     public byte[] getFixedInDataBefore() {
         return fixedInDataBefore;
     }
-
 
     public byte[] getFixedInDataAfter() {
         return fixedInDataAfter;
     }
 
     final static int bitsPerByte = 8; 
-
 
     public static void main(String[] args) throws Exception {
 
@@ -80,8 +77,6 @@ public class Nist800_108Test {
         System.out.println("DONE running NIST test vectors.");
 
     }
-
-
 
     public enum Prf {
         CMAC_AES128, CMAC_AES256, CMAC_AES192, ;
@@ -153,7 +148,7 @@ public class Nist800_108Test {
 
         if ( argKi == null ) throw new Exception ("Error. Need input key.");        
         this.inputkey = argKi.clone(); 
-        
+
         switch(this.ctrloc) {
         case BEFORE_FIXED:
             if ( argFixedinputBefore != null ) throw new Exception("Error. No fixed data before counter in BEFORE_FIXED.");            
@@ -168,7 +163,7 @@ public class Nist800_108Test {
             if ( argFixedinputAfter != null ) throw new Exception("Error. No fixed data after counter in AFTER_FIXED.");             
             break;
         }
-        
+
         if ( argFixedinputBefore != null ) this.fixedInDataBefore = argFixedinputBefore.clone(); 
         if ( argFixedinputAfter != null ) this.fixedInDataAfter = argFixedinputAfter.clone();        
         if ( argKo != null ) {
@@ -179,10 +174,8 @@ public class Nist800_108Test {
                 throw new Error("Error, L value must be equal to given output key size.");
             }            
         }
-
     }
 
-    
     /**
      * Constructor with String instead of byte[].
      * @throws Exception 
@@ -190,11 +183,7 @@ public class Nist800_108Test {
     public Nist800_108Test(Prf prf, CtrLocation ctrloc, RLen rEnum, int nrOutputBits, String ki,
             String fixedinputBefore, String fixedinputAfter, String ko) throws Exception {
         this(prf,ctrloc, rEnum, nrOutputBits, new ByteString(ki).getBytes(),  new ByteString(fixedinputBefore).getBytes(), new ByteString(fixedinputAfter).getBytes(),  new ByteString(ko).getBytes());
-
     }
-
-
-
 
     /**
      * summarize some KDF params in a string
@@ -241,7 +230,7 @@ public class Nist800_108Test {
             myparams = new KDFCounterParameters(this.inputkey, this.fixedInDataBefore,null,  rbits);
             break;
         }
-        
+
         BlockCipher underlyingCipher = new AESEngine();
         Mac aesCbcMac = new CMac(underlyingCipher);
         KDFCounterBytesGenerator mygen = new KDFCounterBytesGenerator(aesCbcMac);
@@ -250,7 +239,7 @@ public class Nist800_108Test {
         int offset=0;
         mygen.generateBytes(calculatedOutput, offset, calculatedOutput.length);
     }
-    
+
     /**
      * Do a KDF, and compare with expected output.
      * */
@@ -259,15 +248,11 @@ public class Nist800_108Test {
         return Arrays.equals(this.calculatedOutput, this.expectedOutput);
     }
 
-
     public byte[] getCalculatedOutput() {
         return calculatedOutput;
     }
 
-
     public byte[] getExpectedOutput() {
         return expectedOutput;
     }
-
-
 }
