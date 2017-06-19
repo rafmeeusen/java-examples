@@ -2,7 +2,6 @@ package net.meeusen.crypto;
 
 import java.util.Arrays;
 
-import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.bouncycastle.crypto.engines.AESEngine;
 import org.bouncycastle.crypto.modes.CCMBlockCipher;
 import org.bouncycastle.crypto.params.AEADParameters;
@@ -10,83 +9,131 @@ import org.bouncycastle.crypto.params.KeyParameter;
 
 import net.meeusen.util.ByteString;
 
+
+/**
+ * Wrappers around BC AES-CCM, with easy API to validate NIST test vectors for AES-CCM.  * 
+ * */
 public class AesCcmTest {
+
+    public byte[] getCalculatedOutput() {
+        return calculatedOutput;
+    }
+
+    public byte[] getPayLoad() {
+        return payLoad;
+    }
+
+    public byte[] getCipherText() {
+        return cipherText;
+    }
 
     private CCMBlockCipher ccmCipher;
     private KeyParameter keyParameter;
-    private int TlenBytes; // nr bytes!
+    private int TlenBytes; 
     private byte[] key;
     private byte[] nonce;
     private byte[] Adata;
-    private byte[] Payload;
-    private byte[] ExpectedCT;
+    private byte[] payLoad;
+    private byte[] cipherText;
     private TestType type;
+
+    // following can be either payload or ciphertext depending on test type.    
+    private byte[] calculatedOutput; 
 
     public String toString() {
         return this.type.toString() + " Tlen:" + TlenBytes + " KeyLen:" + key.length + " Nlen: " + nonce.length
-                + " Alen: " + Adata.length + " Plen:" + Payload.length;
-    }
-
-    public AesCcmTest(TestType type, int Tlen, String Key, String Nonce, String Adata, String Payload,
-            String ExpectedCT) throws IllegalStateException, InvalidCipherTextException {
-        this(type, Tlen, new ByteString(Key).getBytes(), new ByteString(Nonce).getBytes(),
-                new ByteString(Adata).getBytes(), new ByteString(Payload).getBytes(),
-                new ByteString(ExpectedCT).getBytes());
-    }
-
-    public AesCcmTest(TestType testType, int Tlen, byte[] Key, byte[] Nonce, byte[] Adata, byte[] Payload,
-            byte[] ExpectedCT) throws IllegalStateException, InvalidCipherTextException {
-        this.type = testType;
-        this.ccmCipher = new CCMBlockCipher(new AESEngine());
-        this.keyParameter = new KeyParameter(Key);
-        this.TlenBytes = Tlen;
-        this.key = Key.clone();
-        this.nonce = Nonce.clone();
-        this.Adata = Adata.clone();
-        this.Payload = Payload.clone();
-        this.ExpectedCT = ExpectedCT.clone();
+                + " Alen: " + Adata.length + " Plen:" + payLoad.length;
     }
 
     /**
-     * use BC to check (NIST) test vector. Java doc:
-     * http://javadox.com/org.bouncycastle/bcprov-jdk15on/1.51/org/bouncycastle/
-     * crypto/params/AEADParameters.html
-     * http://javadox.com/org.bouncycastle/bcprov-jdk15on/1.51/org/bouncycastle/
-     * crypto/modes/CCMBlockCipher.html
-     */
-    public boolean checkTestVector() throws IllegalStateException, InvalidCipherTextException {
+     * Constructor with (hex) String arguments
+     * @throws Exception 
+     * */
+    public AesCcmTest(TestType type, int argTlenBytes, String Key, String Nonce, String argAdata, String argPayload,
+            String argCipherText) throws Exception {
+        this(type, argTlenBytes, new ByteString(Key).getBytes(), new ByteString(Nonce).getBytes(),
+                new ByteString(argAdata).getBytes(), new ByteString(argPayload).getBytes(),
+                new ByteString(argCipherText).getBytes());
+    }
 
-        boolean isEncryption;
-        byte[] testInput;
-        byte[] ourOutput;
-        byte[] expectedOutput;
+    /**
+     * Constructor with byte[] arguments
+     * @throws Exception 
+     * */
+    public AesCcmTest(TestType argTestType, int argTlenBytes, byte[] Key, byte[] Nonce, byte[] argAdata, byte[] argPayload,
+            byte[] argCipherText) throws Exception {
 
-        if (this.type == TestType.ENCRYPT) {
-            isEncryption = true;
-            testInput = this.Payload;
-            // stream cipher: CT len = PT len (plus tag)
-            ourOutput = new byte[this.Payload.length + this.TlenBytes];
-            expectedOutput = this.ExpectedCT;
-
-        } else {
-            isEncryption = false;
-            testInput = this.ExpectedCT;
-            ourOutput = new byte[this.ExpectedCT.length - this.TlenBytes];
-            expectedOutput = this.Payload;
+        switch ( argTestType ) {
+        case ENCRYPT:
+            // need payload to encrypt something
+            if ( argPayload == null ) throw new Exception ("Cannot encrypt without payload.");             
+            break;
+        case DECRYPT:
+            // need CT to decrypt something
+            if ( argCipherText == null ) throw new Exception ("Cannot decrypt without ciphertext."); 
+            break;
+        default:
+            throw new Exception("not allowed");
         }
 
+        this.type = argTestType;
+        this.ccmCipher = new CCMBlockCipher(new AESEngine());
+        this.keyParameter = new KeyParameter(Key);
+        this.TlenBytes = argTlenBytes;
+        this.key = Key.clone();
+        this.nonce = Nonce.clone();
+
+        // some of these are optional: 
+        if ( argAdata != null ) this.Adata = argAdata.clone();
+        if ( argPayload != null ) this.payLoad = argPayload.clone();
+        if ( argCipherText != null ) this.cipherText = argCipherText.clone();
+    }
+
+    /**
+     * encrypt or decrypt depending on test type. 
+     * store result in instance variable calculatedOutput
+     * result is NOT interpreted, not compared to any expected output...
+     * @throws Exception 
+     * */
+    public void doCalculate() throws Exception{
+        boolean isEncryption;
+        byte[] testInput=null;
+        //byte[] testOutput=null;
+
+        switch ( this.type ) {
+        case ENCRYPT:
+            isEncryption = true;
+            testInput = this.payLoad;
+            break;
+        case DECRYPT:
+            isEncryption = false;
+            testInput = this.cipherText;
+            break;
+        default:
+            throw new Exception("not allowed");
+        }
+
+        /** Java docs:
+         * http://javadox.com/org.bouncycastle/bcprov-jdk15on/1.51/org/bouncycastle/crypto/modes/CCMBlockCipher.html 
+         * http://javadox.com/org.bouncycastle/bcprov-jdk15on/1.51/org/bouncycastle/crypto/params/AEADParameters.html
+         */
+
+        // init
         int TlenBits = this.TlenBytes * 8;
         ccmCipher.init(isEncryption, new AEADParameters(this.keyParameter, TlenBits, this.nonce, this.Adata));
 
+        // process
         int inputOffset = 0;
         int outputOffset = 0;
-        int nrProcessBytes = this.ccmCipher.processPacket(testInput, inputOffset, testInput.length, ourOutput,
+        int expectedOutputSize = this.ccmCipher.getOutputSize(testInput.length); 
+        this.calculatedOutput = new byte[expectedOutputSize]; 
+        int nrProcessBytes = this.ccmCipher.processPacket(testInput, inputOffset, testInput.length, this.calculatedOutput,
                 outputOffset);
 
-        if (nrProcessBytes != ourOutput.length) {
-            System.out.println(
-                    "mmmm, our processPacket didn't give number of expected bytes. Maybe doFinal is needed after all...");
+        if ( nrProcessBytes != expectedOutputSize ) {
+            throw new Exception("unexpected internal error or misunderstanding...");
         }
+
         // strange, when I do another doFinal, there is data coming out, not
         // expected, and not sure what this data means...
         // byte[] finalOutput = new byte[ccmCipher.getOutputSize(0)];
@@ -94,13 +141,36 @@ public class AesCcmTest {
         // if ( nrOutputBytes != finalOutput.length) {
         // throw new Error("this should not happen.");
         // }
-
-        return Arrays.equals(ourOutput, expectedOutput);
     }
 
-    public static void main(String[] args) throws IllegalStateException, InvalidCipherTextException {
+    /**
+     * calculate AND compare with expected output
+     * */
+    public boolean checkTestVector() throws Exception  {
+
+        this.doCalculate();
+
+        byte[] expectedOutput=null;
+        switch ( this.type ) {
+        case ENCRYPT:
+            expectedOutput = this.cipherText; 
+            break;
+        case DECRYPT:
+            expectedOutput = this.payLoad;
+            break;
+        default:
+            throw new Exception("not allowed");
+        }
+
+        return Arrays.equals(this.calculatedOutput, expectedOutput);
+    }
+
+    /**
+     * Check some CCM test vectors NIST.
+     * */
+    public static void main(String[] args) throws Exception {
         /**
-         * CCM test vectors NIST:
+         * 
          * http://csrc.nist.gov/groups/STM/cavp/block-cipher-modes.html#test-
          * vectors explained in :
          * http://csrc.nist.gov/groups/STM/cavp/documents/mac/CCMVS.pdf (ccmvs =
@@ -182,7 +252,6 @@ public class AesCcmTest {
                         "3c0e2815d37d844f7ac240ba9d6e3a0b2a86f706e885959e09a1005e024f6907",
                         "e8de970f6ee8e80ede933581b5bcf4d837e2b72baa8b00c3",
                         "8d34cdca37ce77be68f65baf3382e31efa693e63f914a781367f30f2eaad8c063ca50795acd90203"),
-
         };
 
         System.out.println("Running " + someNistAesCcmTestVectors.length + " NIST test vectors.");
@@ -198,9 +267,11 @@ public class AesCcmTest {
             testCounter++;
         }
         System.out.println("DONE running NIST test vectors.");
+
+
     }
 
-    private enum TestType {
+    public enum TestType {
         ENCRYPT, DECRYPT;
         public String toString() {
             switch (this) {
