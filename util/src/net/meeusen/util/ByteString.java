@@ -12,7 +12,7 @@ public class ByteString {
     }
 
     public ByteString(byte[] bytes) {
-        this.bytes = bytes.clone();
+        if (bytes!=null) this.bytes = bytes.clone();
     }
 
     public ByteString(BigInteger bi) {
@@ -259,9 +259,10 @@ public class ByteString {
 
     public String toHexString() {
         String result = "";
-
-        for (int i = 0 ; i < bytes.length ; i++) {
-            result += String.format("%02x", bytes[i]);
+        if ( bytes != null ) {
+            for (int i = 0 ; i < bytes.length ; i++) {
+                result += String.format("%02x", bytes[i]);
+            }            
         }
 
         return(result);
